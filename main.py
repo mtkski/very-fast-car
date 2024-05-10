@@ -28,18 +28,24 @@ def print_env_info(env):
     print("observation_space.shape = " + str(env.observation_space.shape))
 
 if __name__ == "__main__":
-    env = gym.make("CarRacing-v2", domain_randomize=True, render_mode='human')
-    print_env_info(env)
+    env = gym.make("CarRacing-v2", domain_randomize=True, render_mode='human', max_episode_steps=300)
+
+    # print_env_info(env)
 
     ai_agent = AIPlayer(env.observation_space, env.action_space)
     terminated = False
+    truncated = False
     observation = env.reset()
 
-    for i in range(100):
+    while not (terminated or truncated) :        
+        # Terminated quand il quitte la map (ou réalise l'objectif, mais pas encore check ça)
+        # Truncated quand il a fait le nombre max de steps (dans le env.make())
+        
         action = ai_agent.choose_action(observation)
         # print(action)
 
         # C'est les valeurs qui sortent de step, et dans le jeu voiture on s'en fout de "info" (mais faut le mettre pour que ça marche)
         observation, reward, terminated, truncated, info = env.step(action) 
+        
 
     env.close()
