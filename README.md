@@ -1,6 +1,7 @@
 # INFO-H-410 Project
 
 Based on the gymnasium library, and more precisely on the car game from the "box2d" environnement.
+https://gymnasium.farama.org/environments/box2d/car_racing/
 
 ## Action
 
