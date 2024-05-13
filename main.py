@@ -15,13 +15,15 @@ if __name__ == "__main__":
     agent = DQNAgent(env.observation_space, env.action_space)
     terminated = False
     truncated = False
-    observation = process_state_image(env.reset()[0])
+    current_observation = process_state_image(env.reset()[0]) # Initial observation
+    agent.stack.extend([current_observation] * agent.stack_size) 
+    deque([init_state]*agent.frame_stack_num, maxlen=agent.frame_stack_num)
 
     while not (terminated or truncated) :
-        action = agent.choose_action(observation)
+        action = agent.choose_action()
 
-        observation, reward, terminated, truncated, info = env.step(action) 
-        observation = process_state_image(observation)
-        
+        current_observation, reward, terminated, truncated, info = env.step(action) 
+        current_observation = process_state_image(current_observation)
+        agent.stack.append(current_observation)
 
     env.close()
