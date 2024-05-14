@@ -14,7 +14,7 @@ if __name__ == "__main__":
     env = gym.make("CarRacing-v2", render_mode='human', max_episode_steps=300)
 
     agent = DQNAgent(epsilon=0) # assure that the agent will alway stick to the policy
-    agent.load_model("./save/model-50.h5")
+    agent.load_model("./save/model-250.h5")
     
     for _ in range(NUM_EPISODES):
         terminated = False
@@ -24,7 +24,7 @@ if __name__ == "__main__":
             action = agent.choose_action(observation)
             next_state, reward, done, truncated, info = env.step(action)
             observation = transform_to_grey_scale(next_state)
-            if done or truncated:
+            if done:
                 break
         
 
