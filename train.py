@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from tqdm import tqdm
 from DQNAgent import DQNAgent
+import csv
 
 NUM_EPISODES = 1000
 BATCH_SIZE = 32
@@ -14,6 +15,12 @@ TARGET_UPDATE_FREQUENCY = 15
 MODEL_SAVE_FREQUENCY = 50
 
 
+def save_rewards_to_csv(episode, reward):
+    with open('rewards.csv', 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        if episode == 0:
+            writer.writerow(["episode", "total_reward"])  # Rename the first columns
+        writer.writerow([episode, total_reward])
 
 
 def transform_to_grey_scale(obs):
@@ -81,7 +88,7 @@ if __name__ == "__main__":
         if episode % MODEL_SAVE_FREQUENCY == 0:
             agent.save_model(f"./save/model-{episode}.h5")
         
-        
+        save_rewards_to_csv(episode, total_reward)
                             
            
     env.close()

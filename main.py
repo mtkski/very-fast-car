@@ -1,6 +1,7 @@
 import gymnasium as gym
 import numpy as np
 import cv2
+from collections import deque
 from DQNAgent import DQNAgent
 
 def process_state_image(obs):
