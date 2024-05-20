@@ -5,24 +5,29 @@ from tqdm import tqdm
 from DQNAgent import DQNAgent
 import csv
 
-NUM_EPISODES = 1000
-BATCH_SIZE = 32
+TEST_NAME = "flep2"
+NUM_EPOCS = 1000
+BATCH_SIZE = 16
 RENDERING = False
 # This allow the agent to have a better perception of movement
 STEP_BETWEEN_STATE = 4
-TRAINING_FREQUENCY = 10
-TARGET_UPDATE_FREQUENCY = 15
-MODEL_SAVE_FREQUENCY = 50
+TRAINING_FREQUENCY = 7
+TARGET_UPDATE_FREQUENCY = 7
+MODEL_SAVE_FREQUENCY = 20
+MIN_FRAME_FOR_NEG_REWARD = 60
 LOADING_EXISTING_MODEL = False
-LOADING_MODEL_PATH = "./save/model-250.h5"
+LOADING_MODEL_PATH = f"./save/{TEST_NAME}/model-0.h5"
 
 
-def save_rewards_to_csv(episode, reward):
-    with open('rewards.csv', 'a', newline='') as csvfile:
+def save_log(epochs, reward, agent):
+    with open('Training_log.csv', 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        if episode == 0:
-            writer.writerow(["episode", "total_reward"])  # Rename the first columns
-        writer.writerow([episode, total_reward])
+        if epochs % 10 == 0:
+            if csvfile.tell() == 0:
+                writer.writerow(["test_name", "epochs", "reward", "epsilon", "epsilon_min", "espilon_decay ", "gamma" , "memory_size" , "BATCH_SIZE size", "STEP_BETWEEN_STATE", "TRAINING_FREQUENCY", "TARGET_UPDATE_FREQUENCY", "MIN_FRAME_FOR_NEG_REWARD"])  # Rename the first columns
+                writer.writerow([TEST_NAME, epochs, reward, agent.epsilon , agent.epsilon_min, agent.epsilon_decay, agent.gamma , agent.memory_size, BATCH_SIZE, STEP_BETWEEN_STATE, TRAINING_FREQUENCY, TARGET_UPDATE_FREQUENCY, MIN_FRAME_FOR_NEG_REWARD])
+        if epochs % 10 == 0:
+            writer.writerow([TEST_NAME, epochs, reward, agent.epsilon , agent.epsilon_min, agent.epsilon_decay, agent.gamma , agent.memory_size, BATCH_SIZE, STEP_BETWEEN_STATE, TRAINING_FREQUENCY, TARGET_UPDATE_FREQUENCY, MIN_FRAME_FOR_NEG_REWARD])
 
 
 def transform_to_grey_scale(obs):
@@ -32,7 +37,7 @@ def transform_to_grey_scale(obs):
     return obs
 
 if __name__ == "__main__":
-    env = gym.make("CarRacing-v2", max_episode_steps=300, domain_randomize=False, render_mode='human')
+    env = gym.make("CarRacing-v2", max_episode_steps=300, domain_randomize=False)
     
     if LOADING_EXISTING_MODEL:
         agent = DQNAgent(epsilon=0.6)
@@ -43,7 +48,7 @@ if __name__ == "__main__":
 
 
 
-    for episode in tqdm(range(NUM_EPISODES)):
+    for epoch in tqdm(range(NUM_EPOCS)):
         init_frame = env.reset(seed=234)[0]
         current_frame = transform_to_grey_scale(init_frame)
         total_reward = 0
@@ -65,7 +70,7 @@ if __name__ == "__main__":
                 if done or info:
                     break
             
-            if reward < 0 and frame_counter > 60:
+            if reward < 0 and frame_counter > MIN_FRAME_FOR_NEG_REWARD:
                 negative_reward_counter += 1
             else:
                 negative_reward_counter = 0                
@@ -90,13 +95,13 @@ if __name__ == "__main__":
                 saved_transitions = 0
             
         
-        if episode % TARGET_UPDATE_FREQUENCY == 0:
+        if epoch % TARGET_UPDATE_FREQUENCY == 0:
             agent.update_target_model()
         
-        if episode % MODEL_SAVE_FREQUENCY == 0:
-            agent.save_model(f"./save/model-{episode}.h5")
+        if epoch % MODEL_SAVE_FREQUENCY == 0:
+            agent.save_model(f"./save/{TEST_NAME}/model-{epoch}.h5")
         
-        save_rewards_to_csv(episode, total_reward)
+        save_log(epoch, total_reward, agent)
                             
            
     env.close()

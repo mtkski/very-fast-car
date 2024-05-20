@@ -7,7 +7,7 @@ class DQNAgent:
     def __init__(
         self,
         action_space = [(0, 0, 0), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 0, 0.8)],
-        memory_size=1000,
+        memory_size=2000,
         learning_rate=0.001,
         epsilon=1.0
     ):
@@ -21,7 +21,7 @@ class DQNAgent:
         self.epsilon = epsilon
         self.epsilon_min = 0.1
         self.epsilon_decay = 0.995
-        self.gamma = 0.95
+        self.gamma = 0.9
         
 
     def choose_action(self, observation):
