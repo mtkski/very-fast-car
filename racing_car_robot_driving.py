@@ -11,19 +11,19 @@ def transform_to_grey_scale(obs):
     return obs
 
 if __name__ == "__main__":
-    env = gym.make("CarRacing-v2", render_mode='human', max_episode_steps=300)
+    env = gym.make("CarRacing-v2", render_mode='human', max_episode_steps=200, domain_randomize=False)
 
     agent = DQNAgent(epsilon=0) # assure that the agent will alway stick to the policy
-    agent.load_model("./save/model-150.h5")
+    agent.load_model("./save/model-300.h5")
     
     for _ in range(NUM_EPISODES):
         terminated = False
         truncated = False
-        observation = transform_to_grey_scale(env.reset()[0])
+        observation = transform_to_grey_scale(env.reset(seed = 234)[0])
         while True:
             action = agent.choose_action(observation)
             next_state, reward, done, truncated, info = env.step(action)
             observation = transform_to_grey_scale(next_state)
-            if done:
-                break
+            if done or truncated:
+                env.reset(seed = 234)
     env.close()

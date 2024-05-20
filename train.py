@@ -13,6 +13,8 @@ STEP_BETWEEN_STATE = 4
 TRAINING_FREQUENCY = 10
 TARGET_UPDATE_FREQUENCY = 15
 MODEL_SAVE_FREQUENCY = 50
+LOADING_EXISTING_MODEL = False
+LOADING_MODEL_PATH = "./save/model-250.h5"
 
 
 def save_rewards_to_csv(episode, reward):
@@ -30,13 +32,19 @@ def transform_to_grey_scale(obs):
     return obs
 
 if __name__ == "__main__":
-    env = gym.make("CarRacing-v2", max_episode_steps=300, domain_randomize=False)
-    agent = DQNAgent()
+    env = gym.make("CarRacing-v2", max_episode_steps=300, domain_randomize=False, render_mode='human')
+    
+    if LOADING_EXISTING_MODEL:
+        agent = DQNAgent(epsilon=0.6)
+        agent.load_model(LOADING_MODEL_PATH)
+    else:
+        agent = DQNAgent()
+    
 
 
 
     for episode in tqdm(range(NUM_EPISODES)):
-        init_frame = env.reset()[0]
+        init_frame = env.reset(seed=234)[0]
         current_frame = transform_to_grey_scale(init_frame)
         total_reward = 0
         negative_reward_counter = 0
@@ -57,7 +65,7 @@ if __name__ == "__main__":
                 if done or info:
                     break
             
-            if reward < 0 and frame_counter > 100:
+            if reward < 0 and frame_counter > 60:
                 negative_reward_counter += 1
             else:
                 negative_reward_counter = 0                
@@ -66,7 +74,7 @@ if __name__ == "__main__":
             # handle the reward part 
             total_reward += reward
             print(total_reward)
-            if(total_reward < 0 or negative_reward_counter > 20):
+            if(total_reward < 0 or negative_reward_counter > 10):
                 break
             
             next_frame = transform_to_grey_scale(next_frame)

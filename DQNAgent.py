@@ -19,7 +19,7 @@ class DQNAgent:
         self.model = self.build_model()
         self.target_model = self.build_model()
         self.epsilon = epsilon
-        self.epsilon_min = 0.05
+        self.epsilon_min = 0.1
         self.epsilon_decay = 0.995
         self.gamma = 0.95
         

@@ -4,9 +4,16 @@ import matplotlib.pyplot as plt
 
 # Read the CSV file
 data = pd.read_csv('rewards.csv')
-# Plot the data
 
-plt.plot(data["episode"], data["total_reward"])
+# Plot the data
+x_axis = data["episode"]
+y_axis = data["total_reward"]
+
+plt.plot(x_axis, y_axis)
+
+
+
+
 
 # Customize the plot if needed
 plt.title('CSV Data Plot')
