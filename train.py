@@ -1,12 +1,11 @@
 import gymnasium as gym
 import numpy as np
 import cv2
-from collections import deque
 from tqdm import tqdm
 from DQNAgent import DQNAgent
 import csv
 
-TEST_NAME = "alex9_frame_window"
+TEST_NAME = "alex8"
 NUM_EPOCS = 1000
 STARTING_EPOCH = 0
 BATCH_SIZE = 32
@@ -53,10 +52,6 @@ if __name__ == "__main__":
     for epoch in tqdm(range(STARTING_EPOCH,NUM_EPOCS)):
         init_frame = env.reset()[0]
         current_frame = transform_to_grey_scale(init_frame)
-        
-        current_frame_window = deque([current_frame]*agent.frame_window_size, maxlen=2) # create a window of 2 frames to have a better perception of movement
-        next_frame_window = deque([current_frame]*agent.frame_window_size, maxlen=2)
-        
         total_reward = 0
         negative_reward_counter = 0
         frame_counter = 0
@@ -89,15 +84,11 @@ if __name__ == "__main__":
                 break
             
             next_frame = transform_to_grey_scale(next_frame)
-            
-            next_frame_window.append(next_frame)
-            agent.save_transition(current_frame_window, action, reward, next_frame_window, done) # save the transition in the memory
+            agent.save_transition(current_frame, action, reward, next_frame, done) # save the transition in the memory
             saved_transitions += 1
 
             
             current_frame = next_frame # update the current frame
-            current_frame_window = next_frame_window # update the current frame window
-            
             frame_counter += STEP_BETWEEN_STATE
             
             if len(agent.memory) > BATCH_SIZE and saved_transitions % TRAINING_FREQUENCY == 0:
