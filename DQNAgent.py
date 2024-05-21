@@ -2,15 +2,17 @@ import numpy as np
 import random
 import tensorflow as tf
 from collections import deque
+from memory_profiler import profile
+
 # Define the AI agent
 class DQNAgent:
     def __init__(
         self,
-        action_space = [(0, 0, 0), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 0, 0.8)],
-        memory_size=5000,
+        action_space = [(0, 0, 0), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 0, 0.5)],
+        memory_size=1000,
         learning_rate=0.001,
         epsilon=1.0,
-        frame_window_size=2
+        frame_window_size=4
     ):
         self.action_space = action_space
         self.memory_size = memory_size
@@ -40,7 +42,7 @@ class DQNAgent:
         # Neural Net for Deep-Q learning Model
         model = tf.keras.models.Sequential()
         init = tf.keras.initializers.HeUniform()
-        model.add(tf.keras.layers.Conv2D(filters=6, kernel_size=(7, 7), strides=3, activation='relu', input_shape=(self.frame_window_size, 96, 96), kernel_initializer=init))
+        model.add(tf.keras.layers.Conv2D(filters=6, kernel_size=(7, 7), strides=3, activation='relu', input_shape=(96, 96, self.frame_window_size), kernel_initializer=init))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
         model.add(tf.keras.layers.Conv2D(filters=12, kernel_size=(4, 4), activation='relu', kernel_initializer=init))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
@@ -54,7 +56,9 @@ class DQNAgent:
         # Save transition to replay memory
         self.memory.append((current_state_window, action, reward, next_state_window, done))
     
-    def replay(self, batch_size):
+    
+
+    def replay(self, batch_size):        
         # Train model
         batch = random.sample(self.memory, batch_size)
         train_states = []
@@ -62,7 +66,7 @@ class DQNAgent:
         for state, action, reward, next_state, done in batch:
             action_index = self.action_space.index(action)
             
-            target = self.model.predict(np.expand_dims(state, axis=0))[0]
+            target = self.model.predict(np.expand_dims(state, axis=0), verbose=0)[0]
             if done:
                 target[action_index] = reward
             else:
@@ -73,12 +77,12 @@ class DQNAgent:
         self.model.fit(np.array(train_states), np.array(train_targets), epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
-            
+    
+    
     def update_target_model(self):
         self.target_model.set_weights(self.model.get_weights())
-
     def save_model(self, filename):
-        self.model.save(filename)
+        self.target_model.save(filename)
     
     def load_model(self, filename):
         self.model = tf.keras.models.load_model(filename)
