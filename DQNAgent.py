@@ -9,12 +9,14 @@ class DQNAgent:
         action_space = [(0, 0, 0), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 0, 0.8)],
         memory_size=5000,
         learning_rate=0.001,
-        epsilon=1.0
+        epsilon=1.0,
+        frame_window_size=2
     ):
         self.action_space = action_space
         self.memory_size = memory_size
         # create a list of max memory size
         self.memory = deque(maxlen=memory_size)
+        self.frame_window_size = frame_window_size
         self.learning_rate = learning_rate
         self.model = self.build_model()
         self.target_model = self.build_model()
@@ -22,6 +24,7 @@ class DQNAgent:
         self.epsilon_min = 0.05
         self.epsilon_decay = 0.995
         self.gamma = 0.95
+        
         
 
     def choose_action(self, observation):
@@ -37,7 +40,7 @@ class DQNAgent:
         # Neural Net for Deep-Q learning Model
         model = tf.keras.models.Sequential()
         init = tf.keras.initializers.HeUniform()
-        model.add(tf.keras.layers.Conv2D(filters=6, kernel_size=(7, 7), strides=3, activation='relu', input_shape=(96, 96, 1), kernel_initializer=init))
+        model.add(tf.keras.layers.Conv2D(filters=6, kernel_size=(7, 7), strides=3, activation='relu', input_shape=(self.frame_window_size, 96, 96), kernel_initializer=init))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
         model.add(tf.keras.layers.Conv2D(filters=12, kernel_size=(4, 4), activation='relu', kernel_initializer=init))
         model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2)))
@@ -47,9 +50,9 @@ class DQNAgent:
         model.compile(loss='mean_squared_error', optimizer=tf.keras.optimizers.Adam(float(self.learning_rate), epsilon=1e-7))
         return model
 
-    def save_transition(self, state, action, reward, next_state, done):
+    def save_transition(self, current_state_window, action, reward, next_state_window, done):
         # Save transition to replay memory
-        self.memory.append((state, action, reward, next_state, done))
+        self.memory.append((current_state_window, action, reward, next_state_window, done))
     
     def replay(self, batch_size):
         # Train model
