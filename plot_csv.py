@@ -2,12 +2,15 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
+TEST_NAME = "alex8"
+
+
 # Read the CSV file
-data = pd.read_csv('rewards.csv')
+data = pd.read_csv(f'./save/{TEST_NAME}/Training_log.csv')
 
 # Plot the data
-x_axis = data["episode"]
-y_axis = data["total_reward"]
+x_axis = data["epochs"]
+y_axis = data["reward"]
 
 plt.plot(x_axis, y_axis)
 

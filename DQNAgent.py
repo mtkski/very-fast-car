@@ -7,7 +7,7 @@ class DQNAgent:
     def __init__(
         self,
         action_space = [(0, 0, 0), (1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, 0, 0.8)],
-        memory_size=2000,
+        memory_size=5000,
         learning_rate=0.001,
         epsilon=1.0
     ):
@@ -19,9 +19,9 @@ class DQNAgent:
         self.model = self.build_model()
         self.target_model = self.build_model()
         self.epsilon = epsilon
-        self.epsilon_min = 0.1
+        self.epsilon_min = 0.05
         self.epsilon_decay = 0.995
-        self.gamma = 0.9
+        self.gamma = 0.95
         
 
     def choose_action(self, observation):
@@ -63,7 +63,7 @@ class DQNAgent:
             if done:
                 target[action_index] = reward
             else:
-                Q_future = max(self.target_model.predict(np.expand_dims(next_state, axis=0))[0])
+                Q_future = max(self.target_model.predict(np.expand_dims(next_state, axis=0), verbose=0)[0])
                 target[action_index] = reward + Q_future * self.gamma
             train_states.append(state)
             train_targets.append(target)
@@ -79,5 +79,6 @@ class DQNAgent:
     
     def load_model(self, filename):
         self.model = tf.keras.models.load_model(filename)
+        self.target_model = tf.keras.models.load_model(filename)
     
     

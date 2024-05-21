@@ -5,22 +5,23 @@ from tqdm import tqdm
 from DQNAgent import DQNAgent
 import csv
 
-TEST_NAME = "flep2"
+TEST_NAME = "alex8"
 NUM_EPOCS = 1000
-BATCH_SIZE = 16
+STARTING_EPOCH = 0
+BATCH_SIZE = 32
 RENDERING = False
 # This allow the agent to have a better perception of movement
 STEP_BETWEEN_STATE = 4
-TRAINING_FREQUENCY = 7
-TARGET_UPDATE_FREQUENCY = 7
+TRAINING_FREQUENCY = 10
+TARGET_UPDATE_FREQUENCY = 15
 MODEL_SAVE_FREQUENCY = 20
-MIN_FRAME_FOR_NEG_REWARD = 60
+MIN_FRAME_FOR_NEG_REWARD = 50
 LOADING_EXISTING_MODEL = False
-LOADING_MODEL_PATH = f"./save/{TEST_NAME}/model-0.h5"
+LOADING_MODEL_PATH = f"./save/{TEST_NAME}/model-220.h5"
 
 
 def save_log(epochs, reward, agent):
-    with open('Training_log.csv', 'a', newline='') as csvfile:
+    with open(f'./save/{TEST_NAME}/Training_log.csv', 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
         if epochs % 10 == 0:
             if csvfile.tell() == 0:
@@ -37,10 +38,10 @@ def transform_to_grey_scale(obs):
     return obs
 
 if __name__ == "__main__":
-    env = gym.make("CarRacing-v2", max_episode_steps=300, domain_randomize=False)
+    env = gym.make("CarRacing-v2", max_episode_steps=500, domain_randomize=False)
     
     if LOADING_EXISTING_MODEL:
-        agent = DQNAgent(epsilon=0.6)
+        agent = DQNAgent(epsilon=0.15)
         agent.load_model(LOADING_MODEL_PATH)
     else:
         agent = DQNAgent()
@@ -48,8 +49,8 @@ if __name__ == "__main__":
 
 
 
-    for epoch in tqdm(range(NUM_EPOCS)):
-        init_frame = env.reset(seed=234)[0]
+    for epoch in tqdm(range(STARTING_EPOCH,NUM_EPOCS)):
+        init_frame = env.reset()[0]
         current_frame = transform_to_grey_scale(init_frame)
         total_reward = 0
         negative_reward_counter = 0
@@ -79,7 +80,7 @@ if __name__ == "__main__":
             # handle the reward part 
             total_reward += reward
             print(total_reward)
-            if(total_reward < 0 or negative_reward_counter > 10):
+            if(total_reward < 0 or negative_reward_counter > 5):
                 break
             
             next_frame = transform_to_grey_scale(next_frame)
