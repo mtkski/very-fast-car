@@ -10,7 +10,6 @@ from memory_profiler import profile
 import time
 
 
-
 TEST_NAME = "final_train"
 NUM_EPOCS = 1000
 STARTING_EPOCH = 0
@@ -90,7 +89,6 @@ if __name__ == "__main__":
             else:
                 negative_reward_counter = 0                
                 
-            # TODO: add a penalty for not moving and make it stop if the reward is too low
             # handle the reward part 
             total_reward += reward
             print(total_reward)

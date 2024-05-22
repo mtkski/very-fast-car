@@ -3,7 +3,7 @@ import cv2
 from DQNAgent import DQNAgent
 
 NUM_EPISODES = 30
-TEST_NAME = "alex8"
+TEST_NAME = "final_train"
 MODEL = "model-700.h5"
 
 
