@@ -80,7 +80,6 @@ if __name__ == "__main__":
                 if RENDERING:
                     env.render()
                 next_frame, r, done, truncated, info = env.step(action)
-                lala = env.step(action)
                 reward += r
                 if done or info:
                     break
